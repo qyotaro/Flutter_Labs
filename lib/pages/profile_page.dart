@@ -1,16 +1,41 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_project/bottom_navigation.dart';
+import 'package:flutter_project/logic/user_repo_maneger.dart';
 import 'package:flutter_project/utils/responsive_config.dart';
 
-class UserProfilePage extends StatelessWidget {
+class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
+  
+  @override
+  State<UserProfilePage> createState() => _UserProfilePageState();
+}
+
+class _UserProfilePageState extends State<UserProfilePage> {
+  final UserRepoManeger userRepository = UserRepoManeger();
+  String? userName;
+  String? userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData(); 
+  }
+
+  Future<void> _loadUserData() async {
+    final users = await userRepository.getAllUsers();
+    if (users.isNotEmpty) {
+      setState(() {
+        userName = users.first['name'] as String?; 
+        userEmail = users.first['email'] as String?; 
+    });
+  }
+
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('User Profile'),
-      ),
+      appBar: AppBar(title: const Text('Testing')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -23,7 +48,7 @@ class UserProfilePage extends StatelessWidget {
               ),
               SizedBox(height: ResponsiveConfig.spacing(context)),
               Text(
-                'Name: Rostyslav',
+                'Name: $userName',
                 style: TextStyle(
                   fontSize: ResponsiveConfig.fontSizeName(context),
                   fontWeight: FontWeight.bold,
@@ -31,7 +56,7 @@ class UserProfilePage extends StatelessWidget {
               ),
               SizedBox(height: ResponsiveConfig.spacing(context) / 2),
               Text(
-                'Email: emailtest@gmail.com',
+                'Email: $userEmail',
                 style: TextStyle(
                     fontSize: ResponsiveConfig.fontSizeEmail(context),),
               ),
@@ -40,6 +65,7 @@ class UserProfilePage extends StatelessWidget {
           ),
         ),
       ),
+      bottomNavigationBar: const BottomNavigation(),
     );
   }
 }
