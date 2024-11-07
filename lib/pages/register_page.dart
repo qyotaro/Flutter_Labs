@@ -45,7 +45,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: const Color.fromARGB(255, 17, 20, 57),
-              fontSize: ResponsiveConfig.contentFontSize(context),
+              fontSize: ResponsiveConfig.drawerFontSize(context),
             ), 
           ),
         ),
@@ -81,10 +81,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
 
     await userRepository.registrationUser(email, password, name);
-     if (!mounted) return;
-    Navigator.pushNamed(context, '/profile');
+    if (!mounted) return;
+    Navigator.pushNamed(context, '/');
  
-    
   }
 
   Future<void> clearDatabase() async {

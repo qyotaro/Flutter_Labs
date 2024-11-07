@@ -3,13 +3,20 @@ import 'package:flutter_project/pages/login_page.dart';
 import 'package:flutter_project/pages/main_page.dart';
 import 'package:flutter_project/pages/profile_page.dart';
 import 'package:flutter_project/pages/register_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  final hasLoggedIn = prefs.getBool('hasLoggedIn') ?? false;
+
+  runApp(MyApp(hasLoggedIn: hasLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+
+  final bool hasLoggedIn;
+  const MyApp({required this.hasLoggedIn, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +44,9 @@ class MyApp extends StatelessWidget {
           hintStyle: TextStyle(color: Color.fromARGB(255, 17, 20, 57)),
         ),
       ),
-      initialRoute: '/',
+      initialRoute: hasLoggedIn ? '/main' : '/',
       routes: {
-        '/': (context) =>   LoginPage(),
+        '/': (context) => const LoginPage(),
         '/register': (context) => const RegistrationPage(),
         '/profile': (context) => const UserProfilePage(),
         '/main': (context) =>  const MainPage(),
