@@ -62,7 +62,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
               SizedBox(height: ResponsiveConfig.spacing(context)),
               TextButton(
                 onPressed: () async {
-                  final shouldLogout = await showDialog(
+                  final shouldLogout = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
                       backgroundColor: const Color.fromARGB(255, 233, 241, 250),
@@ -108,9 +108,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       ],
                     ),
                   );
-                   if (mounted && shouldLogout == true) {
+                   if (shouldLogout == true) {
                     await userRepository.logoutUser();  
+                   if (context.mounted) {
                     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false); 
+                    }
                   }
                 },
                 child: Text(

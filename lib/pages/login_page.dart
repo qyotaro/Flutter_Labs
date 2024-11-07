@@ -42,58 +42,96 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> loginUser(BuildContext context) async {
-    if (!isConnected) {
-      if (context.mounted) {
-        showDialog<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: const Color.fromARGB(255, 233, 241, 250),
-              title: Text(
-                'No Internet Connection',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: const Color.fromARGB(255, 17, 20, 57),
-                  fontSize: ResponsiveConfig.contentFontSize(context),
-                ),
+  if (!isConnected) {
+    if (context.mounted) {
+      showDialog<void>(  
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: const Color.fromARGB(255, 233, 241, 250),
+            title: Text(
+              'No Internet Connection',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color.fromARGB(255, 17, 20, 57),
+                fontSize: ResponsiveConfig.contentFontSize(context),
               ),
-              content: Text(
-                'Please check your internet connection and try again.',
-                style: TextStyle(
-                  color: const Color.fromARGB(255, 17, 20, 57),
-                  fontSize: ResponsiveConfig.drawerFontSize(context),
-                ),
+            ),
+            content: Text(
+              'Please check your internet connection and try again.',
+              style: TextStyle(
+                color: const Color.fromARGB(255, 17, 20, 57),
+                fontSize: ResponsiveConfig.drawerFontSize(context),
               ),
-              actions: [
-                TextButton(
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 17, 20, 57),
-                    ),
+            ),
+            actions: [
+              TextButton(
+                child: const Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 17, 20, 57),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
                 ),
-              ],
-            );
-          },
-        );
-      }
-    } else {
-
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  } else {
     final email = emailController.text;
     final password = passwordController.text;
     final user = await userRepository.loginUser(email, password);
 
     if (user != null) {
+      // Успішний логін
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('hasLoggedIn', true);
       if (context.mounted) {
         Navigator.pushNamed(context, '/profile');
       }
+      if (context.mounted) {
+      showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color.fromARGB(255, 233, 241, 250),
+          title: Text(
+            'Login Successful',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: const Color.fromARGB(255, 17, 20, 57),
+              fontSize: ResponsiveConfig.contentFontSize(context),
+            ),
+          ),
+          content: Text(
+            'Welcome back!',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: const Color.fromARGB(255, 17, 20, 57),
+              fontSize: ResponsiveConfig.drawerFontSize(context),
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 17, 20, 57),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+      }
     } else {
+
       if (context.mounted) {
         showDialog<void>(
           context: context,
@@ -132,8 +170,9 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     }
-    }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

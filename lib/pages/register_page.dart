@@ -21,70 +21,106 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController nameController = TextEditingController();
 
   Future<void> registrationUser() async {
-    final email = emailController.text;
-    final password = passwordController.text;
-    final name = nameController.text;
+  final email = emailController.text;
+  final password = passwordController.text;
+  final name = nameController.text;
 
-    final existingUsers = await userRepository.getAllUsers();
-    if (existingUsers.isNotEmpty) {
-      if (!mounted) return;
-      showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 233, 241, 250), 
-          title: Text(
-            'Registration failed',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: const Color.fromARGB(255, 17, 20, 57),
-              fontSize: ResponsiveConfig.contentFontSize(context),
-            ), 
-          ),
-          content: Text(
-            'A user is already registered.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: const Color.fromARGB(255, 17, 20, 57),
-              fontSize: ResponsiveConfig.drawerFontSize(context),
-            ), 
+  final existingUsers = await userRepository.getAllUsers();
+  if (existingUsers.isNotEmpty) {
+    if (!mounted) return;
+    showDialog<void>(  
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 233, 241, 250), 
+        title: Text(
+          'Registration failed',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: const Color.fromARGB(255, 17, 20, 57),
+            fontSize: ResponsiveConfig.contentFontSize(context),
+          ), 
+        ),
+        content: Text(
+          'A user is already registered.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: const Color.fromARGB(255, 17, 20, 57),
+            fontSize: ResponsiveConfig.drawerFontSize(context),
+          ), 
+        ),
+      ),
+    );
+    return;
+  }
+
+  if (!email.contains('@gmail.com') || RegExp(r'[0-9]').hasMatch(name)) {
+    if (!mounted) return;
+    showDialog<void>(  
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 233, 241, 250), 
+        title: Text(
+          'Invalid data',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: const Color.fromARGB(255, 17, 20, 57),
+            fontSize: ResponsiveConfig.contentFontSize(context),
           ),
         ),
-      );
-      return;
-    }
-
-    if (!email.contains('@gmail.com') || RegExp(r'[0-9]').hasMatch(name)) {
-      if (!mounted) return;
-      showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 233, 241, 250), 
-          title: Text(
-            'Invalid data',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: const Color.fromARGB(255, 17, 20, 57),
-              fontSize: ResponsiveConfig.contentFontSize(context),
-            ),
-          ),
-          content: Text(
-            'Please check your email or name.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: const Color.fromARGB(255, 17, 20, 57),
-              fontSize: ResponsiveConfig.drawerFontSize(context),
-              ), 
-            ),
-          ),
-        );
-      return;
-    }
-
-    await userRepository.registrationUser(email, password, name);
-    if (!mounted) return;
-    Navigator.pushNamed(context, '/');
- 
+        content: Text(
+          'Please check your email or name.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: const Color.fromARGB(255, 17, 20, 57),
+            fontSize: ResponsiveConfig.drawerFontSize(context),
+          ), 
+        ),
+      ),
+    );
+    return;
   }
+
+  await userRepository.registrationUser(email, password, name);
+  if (!mounted) return;
+
+  showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: const Color.fromARGB(255, 233, 241, 250),
+      title: Text(
+        'Registration Successful',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: const Color.fromARGB(255, 17, 20, 57),
+          fontSize: ResponsiveConfig.contentFontSize(context),
+        ),
+      ),
+      content: Text(
+        'You have successfully registered.',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: const Color.fromARGB(255, 17, 20, 57),
+          fontSize: ResponsiveConfig.drawerFontSize(context),
+        ),
+      ),
+      actions: [
+        TextButton(
+          child: const Text(
+            'OK',
+            style: TextStyle(
+              color: Color.fromARGB(255, 17, 20, 57),
+            ),
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+            Navigator.pushNamed(context, '/');
+          },
+        ),
+      ],
+    ),
+  );
+}
+
 
   Future<void> clearDatabase() async {
   await userRepository.clearUsers();

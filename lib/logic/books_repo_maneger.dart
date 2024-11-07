@@ -69,7 +69,9 @@ class BooksRepoManeger implements BookRepository {
   Future<void> addBookWithInternetCheck(BuildContext context, Book book) async {
   final connectivityResult = await (Connectivity().checkConnectivity());
 
+  // ignore: unrelated_type_equality_checks
   if (connectivityResult == ConnectivityResult.none) {
+    if (context.mounted) {
     showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -97,6 +99,7 @@ class BooksRepoManeger implements BookRepository {
         );
       },
     );
+    }
   } else {
     await addBook(book); 
   }
