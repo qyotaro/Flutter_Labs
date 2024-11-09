@@ -1,10 +1,14 @@
 
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_project/logic/books.dart';
 import 'package:flutter_project/logic/books_repo.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-class BookRepositoryImpl implements BookRepository {
+class BooksRepoManeger implements BookRepository {
   Database? _database;
 
   Future<Database> get database async {
@@ -61,4 +65,44 @@ class BookRepositoryImpl implements BookRepository {
     final db = await database;
     await db.delete('books', where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<void> addBookWithInternetCheck(BuildContext context, Book book) async {
+  final connectivityResult = await (Connectivity().checkConnectivity());
+
+  // ignore: unrelated_type_equality_checks
+  if (connectivityResult == ConnectivityResult.none) {
+    if (context.mounted) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color.fromARGB(255, 233, 241, 250),
+          title: const Text(
+            'No Internet Connection',
+            style: TextStyle(color: Color.fromARGB(255, 17, 20, 57)),
+          ),
+          content: const Text(
+            'Please check your internet connection and try again.',
+            style: TextStyle(color: Color.fromARGB(255, 17, 20, 57)),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('OK', style: TextStyle(
+                color: Color.fromARGB(255, 17, 20, 57),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    }
+  } else {
+    await addBook(book); 
+  }
+}
+
 }

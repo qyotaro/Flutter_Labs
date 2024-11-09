@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_project/logic/user_repo.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+
 
 class UserRepoManeger implements UserRepository {
   Database? _database;
@@ -59,17 +61,20 @@ class UserRepoManeger implements UserRepository {
     }
   }
 
-  // Метод для отримання всіх користувачів
   @override
   Future<List<Map<String, dynamic>>> getAllUsers() async {
     final db = await database;
     return await db.query('users');
   }
 
-  // Метод для очищення бази даних
   @override
   Future<void> clearUsers() async {
     final db = await database;
     await db.delete('users');
+  }
+
+  Future<void> logoutUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('hasLoggedIn');
   }
 }

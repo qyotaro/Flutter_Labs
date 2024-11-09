@@ -1,32 +1,105 @@
+import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/logic/user_repo_maneger.dart';
 import 'package:flutter_project/utils/responsive_config.dart';
 import 'package:flutter_project/widgets/custom_button.dart';
 import 'package:flutter_project/widgets/custom_text_button.dart';
 import 'package:flutter_project/widgets/custom_text_field.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final UserRepoManeger userRepository = UserRepoManeger();
 
-  LoginPage({super.key});
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  bool isConnected = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
+        (List<ConnectivityResult> result) {
+      setState(() {
+        isConnected = result.isNotEmpty && result.first != 
+          ConnectivityResult.none;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
 
   Future<void> loginUser(BuildContext context) async {
-  final email = emailController.text;
-  final password = passwordController.text;
+  if (!isConnected) {
+    if (context.mounted) {
+      showDialog<void>(  
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: const Color.fromARGB(255, 233, 241, 250),
+            title: Text(
+              'No Internet Connection',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color.fromARGB(255, 17, 20, 57),
+                fontSize: ResponsiveConfig.contentFontSize(context),
+              ),
+            ),
+            content: Text(
+              'Please check your internet connection and try again.',
+              style: TextStyle(
+                color: const Color.fromARGB(255, 17, 20, 57),
+                fontSize: ResponsiveConfig.drawerFontSize(context),
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: const Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 17, 20, 57),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  } else {
+    final email = emailController.text;
+    final password = passwordController.text;
+    final user = await userRepository.loginUser(email, password);
 
-  final user = await userRepository.loginUser(email, password);
-  if (context.mounted) { 
     if (user != null) {
-      Navigator.pushNamed(context, '/profile');
-    } else {
+      // Успішний логін
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('hasLoggedIn', true);
+      if (context.mounted) {
+        Navigator.pushNamed(context, '/profile');
+      }
+      if (context.mounted) {
       showDialog<void>(
         context: context,
         builder: (context) => AlertDialog(
           backgroundColor: const Color.fromARGB(255, 233, 241, 250),
           title: Text(
-            'Login failed',
+            'Login Successful',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: const Color.fromARGB(255, 17, 20, 57),
@@ -34,15 +107,68 @@ class LoginPage extends StatelessWidget {
             ),
           ),
           content: Text(
-            'Invalid email or password.',
+            'Welcome back!',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: const Color.fromARGB(255, 17, 20, 57),
               fontSize: ResponsiveConfig.drawerFontSize(context),
             ),
           ),
+          actions: [
+            TextButton(
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 17, 20, 57),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
         ),
       );
+      }
+    } else {
+
+      if (context.mounted) {
+        showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: const Color.fromARGB(255, 233, 241, 250),
+            title: Text(
+              'Login failed',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color.fromARGB(255, 17, 20, 57),
+                fontSize: ResponsiveConfig.contentFontSize(context),
+              ),
+            ),
+            content: Text(
+              'Invalid email or password.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color.fromARGB(255, 17, 20, 57),
+                fontSize: ResponsiveConfig.drawerFontSize(context),
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: const Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 17, 20, 57),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 }
@@ -69,7 +195,7 @@ class LoginPage extends StatelessWidget {
             SizedBox(height: ResponsiveConfig.spacing(context)),
             CustomButton(
               text: 'Sign in',
-              onPressed: () => loginUser(context),
+              onPressed: ()  =>  loginUser(context),
             ),
             CustomTextButton(
               text: 'Don\'t have an account? Sign up',

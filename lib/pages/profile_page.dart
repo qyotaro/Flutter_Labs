@@ -28,8 +28,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         userName = users.first['name'] as String?; 
         userEmail = users.first['email'] as String?; 
     });
-  }
-
+    }
   }
 
   @override
@@ -61,6 +60,70 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     fontSize: ResponsiveConfig.fontSizeEmail(context),),
               ),
               SizedBox(height: ResponsiveConfig.spacing(context)),
+              TextButton(
+                onPressed: () async {
+                  final shouldLogout = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: const Color.fromARGB(255, 233, 241, 250),
+                      title: Text(
+                        'Log out',
+                        textAlign: TextAlign.center, 
+                        style: TextStyle(
+                          color:  const Color.fromARGB(255, 17, 20, 57),
+                          fontSize: ResponsiveConfig.contentFontSize(context),
+                          ),
+                        ),
+                      content: Text(
+                        'Are you sure you want to log out?',
+                        style: TextStyle(
+                          color: const Color.fromARGB(255, 17, 20, 57),
+                          fontSize: ResponsiveConfig.drawerFontSize(context),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(false); 
+                          },
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 17, 83, 31),
+
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(true); 
+                          },
+                          child: const Text(
+                            'Log out',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 207, 44, 58),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                   if (shouldLogout == true) {
+                    await userRepository.logoutUser();  
+                   if (context.mounted) {
+                    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false); 
+                    }
+                  }
+                },
+                child: Text(
+                  'Log out',
+                   style: TextStyle(
+                    color: Colors.red,
+                    fontSize: ResponsiveConfig.drawerFontSize(context),
+                    fontWeight: FontWeight.bold,
+                    ),
+                  ),
+              ),
             ],
           ),
         ),
