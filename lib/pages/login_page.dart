@@ -87,7 +87,6 @@ class _LoginPageState extends State<LoginPage> {
     final user = await userRepository.loginUser(email, password);
 
     if (user != null) {
-      // Успішний логін
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('hasLoggedIn', true);
       if (context.mounted) {
@@ -131,7 +130,6 @@ class _LoginPageState extends State<LoginPage> {
       );
       }
     } else {
-
       if (context.mounted) {
         showDialog<void>(
           context: context,

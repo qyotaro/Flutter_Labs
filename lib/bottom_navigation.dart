@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_project/utils/responsive_config.dart';
+import 'package:flutter_project/pages/recommend_page.dart';
 
 class BottomNavigation extends StatelessWidget {
   const BottomNavigation({super.key});
@@ -17,7 +18,11 @@ class BottomNavigation extends StatelessWidget {
         children: [
            GestureDetector(
             onTap: () {
-              //soon
+               Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) =>
+                 const RecommendedBookPage(),),  
+              );
             },
             child: Image.asset(
               'assets/data.png',
